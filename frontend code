@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #751b1b;
+            border-radius: 5px;
+        }
+
+        input,
+        button {
+            margin: 5px;
+            padding: 8px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: blue;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Library Management System</h1>
+
+    <div class="section">
+        <h2>Add Book</h2>
+        <input type="text" id="bookId" placeholder="Book ID">
+        <input type="text" id="title" placeholder="Title">
+        <input type="text" id="author" placeholder="Author">
+        <button onclick="addBook()">Add Book</button>
+    </div>
+
+    <div class="section">
+        <h2>Register Member</h2>
+        <input type="text" id="memberId" placeholder="Member ID">
+        <input type="text" id="name" placeholder="Name">
+        <button onclick="registerMember()">Register Member</button>
+    </div>
+
+    <div class="section">
+        <h2>Borrow Book</h2>
+        <input type="text" id="borrowBookId" placeholder="Book ID">
+        <input type="text" id="borrowerId" placeholder="Member ID">
+        <button onclick="borrowBook()">Borrow Book</button>
+    </div>
+
+    <div class="section">
+        <h2>Return Book</h2>
+        <input type="text" id="returnBookId" placeholder="Book ID">
+        <input type="text" id="returnerId" placeholder="Member ID">
+        <button onclick="returnBook()">Return Book</button>
+    </div>
+
+    <div class="section">
+        <h2>Display All Books</h2>
+        <button onclick="displayBooks()">Display Books</button>
+    </div>
+
+    <div class="section">
+        <h2>Display All Members</h2>
+        <button onclick="displayMembers()">Display Members</button>
+    </div>
+
+    <div id="output"></div>
+
+    <script>
+        let books = [];
+        let members = [];
+
+        function addBook() {
+            const bookId = document.getElementById('bookId').value;
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            if (bookId && title && author) {
+                books.push({ id: bookId, title, author, available: true });
+                document.getElementById('output').innerText = 'Book added successfully!';
+                clearInputs();
+            } else {
+                alert('Please fill all fields');
+            }
+        }
+
+        function registerMember() {
+            const memberId = document.getElementById('memberId').value;
+            const name = document.getElementById('name').value;
+            if (memberId && name) {
+                members.push({ id: memberId, name, borrowedBooks: [] });
+                document.getElementById('output').innerText = 'Member registered successfully!';
+                clearInputs();
+            } else {
+                alert('Please fill all fields');
+            }
+        }
+
+        function borrowBook() {
+            const bookId = document.getElementById('borrowBookId').value;
+            const memberId = document.getElementById('borrowerId').value;
+            const book = books.find(b => b.id === bookId);
+            const member = members.find(m => m.id === memberId);
+            if (book && member) {
+                if (book.available) {
+                    book.available = false;
+                    member.borrowedBooks.push(book);
+                    document.getElementById('output').innerText = `Book "${book.title}" borrowed by ${member.name}`;
+                } else {
+                    document.getElementById('output').innerText = 'Book is not available';
+                }
+            } else {
+                document.getElementById('output').innerText = 'Invalid book or member ID';
+            }
+            clearInputs();
+        }
+
+        function returnBook() {
+            const bookId = document.getElementById('returnBookId').value;
+            const memberId = document.getElementById('returnerId').value;
+            const book = books.find(b => b.id === bookId);
+            const member = members.find(m => m.id === memberId);
+            if (book && member) {
+                const index = member.borrowedBooks.findIndex(b => b.id === bookId);
+                if (index !== -1) {
+                    book.available = true;
+                    member.borrowedBooks.splice(index, 1);
+                    document.getElementById('output').innerText = `Book "${book.title}" returned by ${member.name}`;
+                } else {
+                    document.getElementById('output').innerText = 'This member did not borrow the specified book';
+                }
+            } else {
+                document.getElementById('output').innerText = 'Invalid book or member ID';
+            }
+            clearInputs();
+        }
+
+        function displayBooks() {
+            if (books.length === 0) {
+                document.getElementById('output').innerText = 'No books in library';
+            } else {
+                let output = 'Books in library:\n';
+                books.forEach(book => {
+                    output += `ID: ${book.id}, Title: ${book.title}, Author: ${book.author}, Available: ${book.available}\n`;
+                });
+                document.getElementById('output').innerText = output;
+            }
+        }
+
+        function displayMembers() {
+            if (members.length === 0) {
+                document.getElementById('output').innerText = 'No registered members';
+            } else {
+                let output = 'Library members:\n';
+                members.forEach(member => {
+                    output += `ID: ${member.id}, Name: ${member.name}, Borrowed books: ${member.borrowedBooks.length}\n`;
+                });
+                document.getElementById('output').innerText = output;
+            }
+        }
+
+        function clearInputs() {
+            document.querySelectorAll('input').forEach(input => input.value = '');
+        }
+    </script>
+</body>
+
+</html>
